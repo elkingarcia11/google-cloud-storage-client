@@ -133,9 +133,7 @@ class GCSClient:
             blob = bucket.blob(destination_blob_name)
             blob.upload_from_filename(source_file_name)
 
-            print(
-                f"File {source_file_name} uploaded to {destination_blob_name}."
-            )
+            print(f"File {source_file_name} uploaded to {destination_blob_name}.")
         except Exception as e:
             self.logger.error(f"Failed to upload file '{source_file_name}': {e}")
             return False
