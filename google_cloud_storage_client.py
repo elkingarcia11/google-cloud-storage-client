@@ -14,19 +14,12 @@ from google.oauth2 import service_account
 from google.cloud.exceptions import NotFound
 from dotenv import load_dotenv
 
-class GCSClient:
+class GoogleCloudStorageClient:
     """Google Cloud Storage Client for read operations using service account authentication."""
     
-    def __init__(self, log_level: int = logging.INFO):
-        """
-        Initialize GCS client using service account authentication.
-        
-        Args:
-            log_level: Logging level for this instance (default: logging.INFO)
-        """
-        # Set up instance logger first (outside try block to ensure it's always available)
+    def __init__(self):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        self.logger.setLevel(log_level)
+        self.logger.setLevel(logging.INFO)
         
         # Add handler if none exists
         if not self.logger.handlers:
@@ -40,9 +33,9 @@ class GCSClient:
             load_dotenv()
             credentials = service_account.Credentials.from_service_account_file(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'))
             self.client = storage.Client(credentials=credentials)
-            self.logger.info(f"GCS client initialized for project: {self.client.project}")
+            self.logger.info(f"Google Cloud Storage client initialized for project: {self.client.project}")
         except Exception as e:
-            self.logger.error(f"Failed to initialize GCS client: {e}")
+            self.logger.error(f"Failed to initialize Google Cloud Storage client: {e}")
             raise
     
     def create_bucket(self, bucket_name):

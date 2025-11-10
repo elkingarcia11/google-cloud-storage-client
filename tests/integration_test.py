@@ -3,14 +3,14 @@
 
 import unittest
 import os
-from gcs_client import GCSClient
+from google_cloud_storage_client import GoogleCloudStorageClient
 
 class TestIntegrations(unittest.TestCase):
     """Integration tests for the Google Cloud Storage Python module."""
 
     def setUp(self):
         """Set up test fixtures before each test method."""
-        self.gcs = GCSClient()
+        self.gcs = GoogleCloudStorageClient()
         self.test_bucket = f"test-bucket-integration-{os.environ.get('GOOGLE_CLOUD_PROJECT_ID')}"
         self.test_file = "env.example"
 
