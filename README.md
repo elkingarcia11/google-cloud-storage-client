@@ -1,6 +1,6 @@
-# Google Cloud Storage Python Module
+# Google Cloud Storage Python Client
 
-A comprehensive Python module for managing Google Cloud Storage operations using service account authentication.
+A lightweight helper around `google-cloud-storage` that focuses on authenticated bucket and object operations using service account credentials.
 
 ## Features
 
@@ -8,13 +8,13 @@ A comprehensive Python module for managing Google Cloud Storage operations using
 - ✅ List all buckets in a project
 - ✅ Upload files to buckets
 - ✅ Download files from buckets
-- ✅ List files in buckets
+- ✅ List files in buckets (with optional prefix)
 - ✅ Delete files from buckets
 - ✅ Check bucket existence
-- ✅ Get file metadata
+- ✅ Get file metadata (size, type, timestamps, MD5)
 - ✅ Service account authentication
 - ✅ Comprehensive error handling and logging
-- ✅ Environment variable support
+- ✅ Environment variable support via `.env`
 - ✅ Type hints for better development experience
 
 ## Installation
@@ -23,7 +23,7 @@ A comprehensive Python module for managing Google Cloud Storage operations using
 
 ```bash
 git clone <repository-url>
-cd gcs-python-module
+cd google-cloud-storage-client
 ```
 
 ### 2. Create and activate virtual environment (recommended):
@@ -59,13 +59,21 @@ pip install -r requirements.txt
 
 ### 5. Configure environment variables:
 
-```bash
-# Set your project ID
-export GOOGLE_CLOUD_PROJECT_ID="your-google-cloud-project-id"
+- Copy `.env.example` to `.env` and update the values:
 
-# Set the service account credentials
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json"
-```
+  ```bash
+  cp env.example .env
+  ```
+
+- Or export the variables directly:
+
+  ```bash
+  # Set your project ID
+  export GOOGLE_CLOUD_PROJECT_ID="your-google-cloud-project-id"
+
+  # Set the service account credentials
+  export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json"
+  ```
 
 ### 6. Add service account key to .gitignore:
 
@@ -76,10 +84,10 @@ echo "/path/to/your/service-account-key.json" >> .gitignore
 ## Quick Start
 
 ```python
-from gcs_client import GCSClient
+from google_cloud_storage_client import GoogleCloudStorageClient
 
-# Initialize client (uses GOOGLE_APPLICATION_CREDENTIALS environment variable)
-gcs = GCSClient()
+# Initialize client (loads variables from .env if present)
+gcs = GoogleCloudStorageClient()
 
 # List all buckets
 buckets = gcs.list_buckets()
@@ -100,13 +108,13 @@ print(f"Download: {'Success' if success else 'Failed'}")
 
 ## Usage Examples
 
-### Using the GCSClient Class
+### Using the GoogleCloudStorageClient Class
 
 ```python
-from gcs_client import GCSClient
+from google_cloud_storage_client import GoogleCloudStorageClient
 
 # Initialize client (uses environment variables for authentication)
-gcs = GCSClient()
+gcs = GoogleCloudStorageClient()
 
 # Create a bucket
 # (Requires Storage Admin permissions)
@@ -149,27 +157,32 @@ print(f"Bucket deletion: {'Success' if success else 'Failed'}")
 
 ```python
 import logging
+from google_cloud_storage_client import GoogleCloudStorageClient
+
+logging.basicConfig(level=logging.INFO)
 
 # Create client with debug logging
-gcs_debug = GCSClient(log_level=logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
+gcs_debug = GoogleCloudStorageClient()
 
 # Create client with only warnings and errors
-gcs_quiet = GCSClient(log_level=logging.WARNING)
+logging.getLogger().setLevel(logging.WARNING)
+gcs_quiet = GoogleCloudStorageClient()
 
 # All methods return appropriate values on failure
-buckets = gcs.list_buckets()  # Returns empty list if failed
-success = gcs.upload_file("bucket", "file.txt", "remote.txt")  # Returns False if failed
-metadata = gcs.get_file_metadata("bucket", "file.txt")  # Returns None if file not found
+buckets = gcs_debug.list_buckets()  # Returns empty list if failed
+success = gcs_debug.upload_file("bucket", "file.txt", "remote.txt")  # Returns False if failed
+metadata = gcs_debug.get_file_metadata("bucket", "file.txt")  # Returns None if file not found
 ```
 
 ## API Reference
 
-### GCSClient Class
+### GoogleCloudStorageClient Class
 
 #### Constructor
 
 ```python
-GCSClient(log_level: int = logging.INFO)
+GoogleCloudStorageClient()
 ```
 
 #### Methods
@@ -204,7 +217,7 @@ export GOOGLE_CLOUD_PROJECT_ID="your-google-cloud-project-id"
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account-key.json"
 ```
 
-**Note**: The `GCSClient` uses service account authentication and requires both environment variables to be set.
+**Note**: The `GoogleCloudStorageClient` uses service account authentication and requires both environment variables to be set.
 
 ## Service Account Setup
 
@@ -267,16 +280,17 @@ python -m pytest tests/integration_test.py::TestIntegrations::test_create_bucket
 
 ### Logging
 
-Each GCSClient instance has its own logger with configurable log levels:
+Each `GoogleCloudStorageClient` instance attaches a logger named after the module and class. Configure logging globally or add handlers on the returned logger to suit your needs:
 
 ```python
 import logging
+from google_cloud_storage_client import GoogleCloudStorageClient
 
-# Create client with debug logging
-gcs_debug = GCSClient(log_level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
+client = GoogleCloudStorageClient()
 
-# Create client with only warnings and errors
-gcs_quiet = GCSClient(log_level=logging.WARNING)
+# Override level for this client only
+client.logger.setLevel(logging.DEBUG)
 ```
 
 ### Error Handling
@@ -300,4 +314,4 @@ If your service account lacks permissions, the module will log warnings and retu
 
 ---
 
-For more details, see the code and docstrings in `gcs_client.py`.
+For more details, see the code and docstrings in `google_cloud_storage_client.py`.
